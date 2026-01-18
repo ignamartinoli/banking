@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class TransferCreate(BaseModel):
@@ -8,10 +8,9 @@ class TransferCreate(BaseModel):
 
 
 class TransferOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     from_account_id: int
     to_account_id: int
     amount_cents: int
-
-    class Config:
-        from_attributes: bool = True

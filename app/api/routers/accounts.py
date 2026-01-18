@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, get_current_user
+from app.repositories.currencies import CurrencyRepository
 from app.schemas.accounts import AccountCreate, AccountOut
 from app.services.accounts import AccountService
 from app.repositories.accounts import AccountRepository
@@ -12,7 +13,7 @@ router = APIRouter(prefix="/accounts", tags=["accounts"])
 
 
 def get_account_service() -> AccountService:
-    return AccountService(AccountRepository())
+    return AccountService(AccountRepository(), CurrencyRepository())
 
 
 @router.post("", response_model=AccountOut)
@@ -22,13 +23,16 @@ def create_account(
     user: User = Depends(get_current_user),
     svc: AccountService = Depends(get_account_service),
 ):
-    acc = svc.create(
-        db,
-        owner_id=user.id,
-        name=payload.name,
-        initial_balance_cents=payload.initial_balance_cents,
-    )
-    return acc
+    try:
+        return svc.create(
+            db,
+            owner_id=user.id,
+            name=payload.name,
+            initial_balance_cents=payload.initial_balance_cents,
+            currency_id=payload.currency_id
+        )
+    except NotFound as e:
+        raise HTTPException(404, str(e))
 
 
 @router.get("", response_model=list[AccountOut])

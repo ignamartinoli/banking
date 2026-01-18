@@ -1,11 +1,9 @@
 from fastapi import FastAPI
-from app.api.routers import auth_router, accounts_router, transfers_router
+from app.api.v1.router import api_v1_router
 
 app = FastAPI(title="FastAPI Clean Architecture CRUD + Auth + Transactions")
 
-app.include_router(auth_router)
-app.include_router(accounts_router)
-app.include_router(transfers_router)
+app.include_router(api_v1_router, prefix="/api/v1")
 
 
 @app.get("/health")

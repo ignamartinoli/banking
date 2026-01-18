@@ -4,11 +4,10 @@ from app.repositories.accounts import AccountRepository
 from app.repositories.transfers import TransferRepository
 from app.errors import NotFound, Forbidden, InsufficientFunds, Conflict
 
-
 class TransferService:
     def __init__(self, accounts: AccountRepository, transfers: TransferRepository):
-        self.accounts: AccountRepository = accounts
-        self.transfers: TransferRepository = transfers
+        self.accounts = accounts
+        self.transfers = transfers
 
     def create_transfer(
         self,
@@ -20,15 +19,17 @@ class TransferService:
         amount_cents: int,
     ) -> Transfer:
         if from_account_id == to_account_id:
-            raise Conflict("from_account_id and to_account_id must differ")
+            raise Conflict("Cannot transfer between accounts owned by the same person")
 
-        # Transaction boundary lives in service
         with db.begin_nested():
+
             from_acc = self.accounts.get_for_update(db, from_account_id)
             to_acc = self.accounts.get_for_update(db, to_account_id)
 
             if not from_acc or not to_acc:
                 raise NotFound("Account not found")
+            if from_acc.currency_id != to_acc.currency_id:
+                raise Conflict("Cannot transfer between accounts with different currencies")
             if from_acc.owner_id != user_id:
                 raise Forbidden("Not your source account")
             if from_acc.balance_cents < amount_cents:

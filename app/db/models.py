@@ -17,6 +17,15 @@ class User(Base):
     )
 
 
+class Currency(Base):
+    __tablename__: str = "currencies"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    code: Mapped[str] = mapped_column(String(3), nullable=False, unique=True, index=True)
+
+    accounts: Mapped[list["Account"]] = relationship(back_populates="currency")
+
+
 class Account(Base):
     __tablename__: str = "accounts"
 
@@ -25,9 +34,14 @@ class Account(Base):
         ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False
     )
     name: Mapped[str] = mapped_column(String(100), nullable=False)
+    
+    currency_id: Mapped[int] = mapped_column(
+        ForeignKey("currencies.id"), index=True, nullable=False
+    )
     balance_cents: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
     owner: Mapped["User"] = relationship(back_populates="accounts")
+    currency: Mapped["Currency"] = relationship(back_populates="accounts")
 
 
 class Transfer(Base):

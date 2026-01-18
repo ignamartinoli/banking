@@ -2,16 +2,34 @@ from sqlalchemy.orm import Session
 from app.db.models import Account
 from app.repositories.accounts import AccountRepository
 from app.errors import NotFound
+from app.repositories.currencies import CurrencyRepository
 
 
 class AccountService:
-    def __init__(self, accounts: AccountRepository):
+    def __init__(self, accounts: AccountRepository, currencies: CurrencyRepository):
         self.accounts: AccountRepository = accounts
+        self.currencies: CurrencyRepository = currencies
 
     def create(
-        self, db: Session, *, owner_id: int, name: str, initial_balance_cents: int
+        self,
+        db: Session,
+        *,
+        owner_id: int,
+        name: str,
+        initial_balance_cents: int,
+        currency_id: int
     ) -> Account:
-        acc = Account(owner_id=owner_id, name=name, balance_cents=initial_balance_cents)
+        if currency_id is None:
+            ars = self.currencies.get_by_code(db, "ARS")
+            if not ars:
+                raise NotFound("Default currency ARS not found")
+            currency_id = ars.id
+        else:
+            currency = self.currencies.get_by_id(db, currency_id)
+            if not currency:
+                raise NotFound("Currency not found")
+
+        acc = Account(owner_id=owner_id, name=name, balance_cents=initial_balance_cents, currency_id=currency_id)
         _ = self.accounts.add(db, acc)
         db.commit()
         db.refresh(acc)
