@@ -47,6 +47,6 @@ class TransferService:
             )
             _ = self.transfers.add(db, tx)
 
+        db.flush()
         db.refresh(tx)
         return tx
-

@@ -31,7 +31,7 @@ class AccountService:
 
         acc = Account(owner_id=owner_id, name=name, balance_cents=initial_balance_cents, currency_id=currency_id)
         _ = self.accounts.add(db, acc)
-        db.commit()
+        db.flush()
         db.refresh(acc)
         return acc
 

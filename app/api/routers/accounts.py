@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, get_current_user
@@ -6,7 +6,6 @@ from app.repositories.currencies import CurrencyRepository
 from app.schemas.accounts import AccountCreate, AccountOut, DepositOut, DepositRequest
 from app.services.accounts import AccountService
 from app.repositories.accounts import AccountRepository
-from app.errors import Forbidden, NotFound
 from app.db.models import User
 
 router = APIRouter(prefix="/accounts", tags=["accounts"])
@@ -23,16 +22,13 @@ def create_account(
     user: User = Depends(get_current_user),
     svc: AccountService = Depends(get_account_service),
 ):
-    try:
-        return svc.create(
-            db,
-            owner_id=user.id,
-            name=payload.name,
-            initial_balance_cents=payload.initial_balance_cents,
-            currency_id=payload.currency_id
-        )
-    except NotFound as e:
-        raise HTTPException(404, str(e))
+    return svc.create(
+        db,
+        owner_id=user.id,
+        name=payload.name,
+        initial_balance_cents=payload.initial_balance_cents,
+        currency_id=payload.currency_id,
+    )
 
 
 @router.get("", response_model=list[AccountOut])
@@ -51,10 +47,7 @@ def get_account(
     user: User = Depends(get_current_user),
     svc: AccountService = Depends(get_account_service),
 ):
-    try:
-        return svc.get(db, owner_id=user.id, account_id=account_id)
-    except NotFound as e:
-        raise HTTPException(404, str(e))
+    return svc.get(db, owner_id=user.id, account_id=account_id)
 
 
 @router.post("/{account_id}/deposit", response_model=DepositOut)
@@ -65,14 +58,9 @@ def deposit(
     user: User = Depends(get_current_user),
     svc: AccountService = Depends(get_account_service),
 ):
-    try:
-        return svc.deposit(
-            db,
-            user_id=user.id,
-            account_id=account_id,
-            amount_cents=payload.amount_cents,
-        )
-    except NotFound as e:
-        raise HTTPException(404, str(e))
-    except Forbidden as e:
-        raise HTTPException(403, str(e))
+    return svc.deposit(
+        db,
+        user_id=user.id,
+        account_id=account_id,
+        amount_cents=payload.amount_cents,
+    )

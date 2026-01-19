@@ -1,11 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, Form
+from fastapi import APIRouter, Depends, Form
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
 from app.schemas.auth import UserCreate, Token
 from app.services.auth import AuthService
 from app.repositories.users import UserRepository
-from app.errors import Conflict, Forbidden
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -20,11 +19,8 @@ def register(
     db: Session = Depends(get_db),
     svc: AuthService = Depends(get_auth_service),
 ):
-    try:
-        token = svc.register(db, email=payload.email, password=payload.password)
-        return {"access_token": token}
-    except Conflict as e:
-        raise HTTPException(400, str(e))
+    token = svc.register(db, email=payload.email, password=payload.password)
+    return {"access_token": token}
 
 
 @router.post("/login", response_model=Token)
@@ -34,8 +30,5 @@ def login(
     db: Session = Depends(get_db),
     svc: AuthService = Depends(get_auth_service),
 ):
-    try:
-        token = svc.login(db, email=username, password=password)
-        return {"access_token": token}
-    except Forbidden as e:
-        raise HTTPException(401, str(e))
+    token = svc.login(db, email=username, password=password)
+    return {"access_token": token}
