@@ -8,6 +8,7 @@ from app.repositories.currencies import CurrencyRepository
 
 router = APIRouter(prefix="/currencies", tags=["currencies"])
 
+
 @router.get("", response_model=list[CurrencyOut])
 def list_currencies(db: Session = Depends(get_db)):
     return CurrencyRepository().list_all(db)

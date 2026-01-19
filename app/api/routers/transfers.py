@@ -10,8 +10,10 @@ from app.db.models import User
 
 router = APIRouter(prefix="/transfers", tags=["transfers"])
 
+
 def get_transfer_service() -> TransferService:
     return TransferService(AccountRepository(), TransferRepository())
+
 
 @router.post("", response_model=TransferOut)
 def create_transfer(

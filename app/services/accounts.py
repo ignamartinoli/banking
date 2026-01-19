@@ -17,7 +17,7 @@ class AccountService:
         owner_id: int,
         name: str,
         initial_balance_cents: int,
-        currency_id: int
+        currency_id: int,
     ) -> Account:
         if currency_id is None:
             ars = self.currencies.get_by_code(db, "ARS")
@@ -29,7 +29,12 @@ class AccountService:
             if not currency:
                 raise NotFound("Currency not found")
 
-        acc = Account(owner_id=owner_id, name=name, balance_cents=initial_balance_cents, currency_id=currency_id)
+        acc = Account(
+            owner_id=owner_id,
+            name=name,
+            balance_cents=initial_balance_cents,
+            currency_id=currency_id,
+        )
         _ = self.accounts.add(db, acc)
         db.flush()
         db.refresh(acc)
@@ -60,6 +65,6 @@ class AccountService:
                 raise Forbidden("Not your account")
 
             acc.balance_cents += amount_cents
-    
+
         db.refresh(acc)
         return acc

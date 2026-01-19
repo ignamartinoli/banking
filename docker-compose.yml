@@ -1,5 +1,5 @@
 services:
-  # wait for db to be ready before starting the api
+  # TODO: wait for db to be ready before starting the api
   api:
     build: .
     depends_on:

@@ -35,7 +35,7 @@ def create_access_token(subject: str) -> str:
 
     payload = {
         "sub": subject,
-        "iat": now,   # PyJWT accepts datetimes and will convert to numeric dates
+        "iat": now,  # PyJWT accepts datetimes and will convert to numeric dates
         "exp": exp,
     }
 
@@ -50,3 +50,4 @@ def decode_token(token: str) -> dict:
         algorithms=[settings.jwt_algorithm],
         options={"require": ["exp", "sub"]},
     )
+

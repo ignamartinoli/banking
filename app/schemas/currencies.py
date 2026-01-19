@@ -6,3 +6,4 @@ class CurrencyOut(BaseModel):
 
     id: int
     code: str
+

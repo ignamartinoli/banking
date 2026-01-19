@@ -29,7 +29,11 @@ def test_transfer_between_different_currencies_is_rejected(client):
 
     r = client.post(
         f"{API_PREFIX}/transfers",
-        json={"from_account_id": acc_ars["id"], "to_account_id": acc_usd["id"], "amount_cents": 100},
+        json={
+            "from_account_id": acc_ars["id"],
+            "to_account_id": acc_usd["id"],
+            "amount_cents": 100,
+        },
         headers=auth_headers(token),
     )
 
@@ -49,7 +53,11 @@ def test_transfer_negative_amount_is_422(client):
     # Pydantic schema has Field(gt=0), so FastAPI returns 422 before hitting service
     r = client.post(
         f"{API_PREFIX}/transfers",
-        json={"from_account_id": acc1["id"], "to_account_id": acc2["id"], "amount_cents": -100},
+        json={
+            "from_account_id": acc1["id"],
+            "to_account_id": acc2["id"],
+            "amount_cents": -100,
+        },
         headers=auth_headers(token),
     )
 
@@ -67,7 +75,11 @@ def test_transfer_insufficient_funds_is_400(client):
 
     r = client.post(
         f"{API_PREFIX}/transfers",
-        json={"from_account_id": acc1["id"], "to_account_id": acc2["id"], "amount_cents": 100},
+        json={
+            "from_account_id": acc1["id"],
+            "to_account_id": acc2["id"],
+            "amount_cents": 100,
+        },
         headers=auth_headers(token),
     )
 
@@ -86,7 +98,11 @@ def test_transfer_success_updates_balances(client):
 
     r = client.post(
         f"{API_PREFIX}/transfers",
-        json={"from_account_id": acc1["id"], "to_account_id": acc2["id"], "amount_cents": 200},
+        json={
+            "from_account_id": acc1["id"],
+            "to_account_id": acc2["id"],
+            "amount_cents": 200,
+        },
         headers=auth_headers(token),
     )
     assert r.status_code == 200, r.text
@@ -98,3 +114,4 @@ def test_transfer_success_updates_balances(client):
 
     assert accounts[acc1["id"]]["balance_cents"] == 800
     assert accounts[acc2["id"]]["balance_cents"] == 200
+

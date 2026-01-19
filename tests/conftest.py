@@ -34,7 +34,9 @@ def db_session(engine):
     """
     connection = engine.connect()
     transaction = connection.begin()
-    TestingSessionLocal = sessionmaker(bind=connection, autoflush=False, autocommit=False)
+    TestingSessionLocal = sessionmaker(
+        bind=connection, autoflush=False, autocommit=False
+    )
 
     session = TestingSessionLocal()
 
@@ -78,7 +80,9 @@ def dispose_engine(engine):
 
 
 def register_and_get_token(client: TestClient, email: str, password: str) -> str:
-    r = client.post(f"{API_PREFIX}/auth/register", json={"email": email, "password": password})
+    r = client.post(
+        f"{API_PREFIX}/auth/register", json={"email": email, "password": password}
+    )
     assert r.status_code == 200, r.text
     return r.json()["access_token"]
 
