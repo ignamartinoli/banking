@@ -19,8 +19,8 @@ class TransferService:
         to_account_id: int,
         amount_cents: int,
     ) -> Transfer:
-        if from_account_id == to_account_id:
-            raise Conflict("Cannot transfer between accounts owned by the same person")
+        # if from_account_id == to_account_id:
+        #     raise Conflict("Cannot transfer between accounts owned by the same person")
 
         with db.begin_nested():
             from_acc = self.accounts.get_for_update(db, from_account_id)

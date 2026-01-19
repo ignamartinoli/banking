@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from app.db.models import Account
 from app.repositories.accounts import AccountRepository
-from app.errors import NotFound
+from app.errors import Forbidden, NotFound
 from app.repositories.currencies import CurrencyRepository
 
 
@@ -42,4 +42,24 @@ class AccountService:
         acc = self.accounts.get_for_owner(db, account_id, owner_id)
         if not acc:
             raise NotFound("Account not found")
+        return acc
+
+    def deposit(
+        self,
+        db: Session,
+        *,
+        user_id: int,
+        account_id: int,
+        amount_cents: int,
+    ) -> Account:
+        with db.begin_nested():
+            acc = self.accounts.get_for_update(db, account_id)
+            if not acc:
+                raise NotFound("Account not found")
+            if acc.owner_id != user_id:
+                raise Forbidden("Not your account")
+
+            acc.balance_cents += amount_cents
+    
+        db.refresh(acc)
         return acc

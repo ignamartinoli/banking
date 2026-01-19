@@ -14,3 +14,14 @@ class AccountOut(BaseModel):
     name: str
     currency_id: int
     balance_cents: int
+
+
+class DepositRequest(BaseModel):
+    amount_cents: int = Field(gt=0)
+
+
+class DepositOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    balance_cents: int

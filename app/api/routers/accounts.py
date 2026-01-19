@@ -3,10 +3,10 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, get_current_user
 from app.repositories.currencies import CurrencyRepository
-from app.schemas.accounts import AccountCreate, AccountOut
+from app.schemas.accounts import AccountCreate, AccountOut, DepositOut, DepositRequest
 from app.services.accounts import AccountService
 from app.repositories.accounts import AccountRepository
-from app.errors import NotFound
+from app.errors import Forbidden, NotFound
 from app.db.models import User
 
 router = APIRouter(prefix="/accounts", tags=["accounts"])
@@ -55,3 +55,24 @@ def get_account(
         return svc.get(db, owner_id=user.id, account_id=account_id)
     except NotFound as e:
         raise HTTPException(404, str(e))
+
+
+@router.post("/{account_id}/deposit", response_model=DepositOut)
+def deposit(
+    account_id: int,
+    payload: DepositRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+    svc: AccountService = Depends(get_account_service),
+):
+    try:
+        return svc.deposit(
+            db,
+            user_id=user.id,
+            account_id=account_id,
+            amount_cents=payload.amount_cents,
+        )
+    except NotFound as e:
+        raise HTTPException(404, str(e))
+    except Forbidden as e:
+        raise HTTPException(403, str(e))
