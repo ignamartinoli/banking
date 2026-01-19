@@ -14,7 +14,6 @@ class AuthService:
             raise Conflict("Email already registered")
         user = User(email=email, password_hash=hash_password(password))
         _ = self.users.add(db, user)
-        db.commit()
         return create_access_token(subject=email)
 
     def login(self, db: Session, *, email: str, password: str) -> str:
