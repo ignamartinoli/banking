@@ -6,10 +6,7 @@ from app.core.config import settings
 
 app = FastAPI(title="Banking API")
 
-# Local dev fallback if CORS_ORIGINS isn't set
-default_origins = ["http://localhost:5173"]
-
-origins = settings.cors_origins or default_origins
+origins = settings.cors_origins_list or ["http://localhost:5173"]
 
 app.add_middleware(
     CORSMiddleware,

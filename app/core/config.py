@@ -1,4 +1,3 @@
-from typing import List
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field, field_validator
 
@@ -11,7 +10,13 @@ class Settings(BaseSettings):
     jwt_algorithm: str = Field(default="HS256", alias="JWT_ALGORITHM")
     access_token_expire_minutes: int = Field(default=60, alias="ACCESS_TOKEN_EXPIRE_MINUTES")
 
-    cors_origins: List[str] = Field(default_factory=list, alias="CORS_ORIGINS")
+    cors_origins: str = Field(default="", alias="CORS_ORIGINS")
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        if not self.cors_origins:
+            return []
+        return [s.strip() for s in self.cors_origins.split(",") if s.strip()]
 
     @field_validator("cors_origins", mode="before")
     @classmethod
