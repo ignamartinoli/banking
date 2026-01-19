@@ -18,15 +18,6 @@ class Settings(BaseSettings):
             return []
         return [s.strip() for s in self.cors_origins.split(",") if s.strip()]
 
-    @field_validator("cors_origins", mode="before")
-    @classmethod
-    def split_origins(cls, v):
-        if v is None or v == "":
-            return []
-        if isinstance(v, str):
-            return [s.strip() for s in v.split(",") if s.strip()]
-        return v
-
     @field_validator("database_url")
     @classmethod
     def normalize_db_url(cls, v: str) -> str:
